@@ -19,9 +19,7 @@ function cmt_error(subj, pos, capture, msg)
 end
 
 local grammar = {
-    [1] = V('entry')^1,
-
-    entry = V('spaces') + V('list'),
+    [1] = V('forms')^1,
 
     spaces = Cmt(
         S('\f\n\r\t\v, '),

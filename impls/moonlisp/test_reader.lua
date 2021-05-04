@@ -9,26 +9,16 @@ function make_test(input, expected)
     end
 end
 
-test_empty = make_test("()", t.List())
-test_spaces = make_test("( ,\f\n\r\t\v)", t.List())
-test_number = make_test(
-    "(1)",
-    t.List(t.Number(1)))
-test_nil = make_test(
-    "(nil)",
-    t.List(t.Nil()))
-test_false = make_test(
-    "(false)",
-    t.List(t.Boolean(false)))
-test_true = make_test(
-    "(true)",
-    t.List(t.Boolean(true)))
+test_spaces = make_test(" ,\f\n\r\t\v", nil)
+test_number_1 = make_test("1", t.Number(1))
+test_number_2 = make_test("123", t.Number(123))
+test_nil = make_test("nil", t.Nil())
+test_false = make_test("false", t.Boolean(false))
+test_true = make_test("true", t.Boolean(true))
 
-test_3_list = make_test(
-    '(0 1 2)',
-    t.List(t.Number(0), t.Number(1), t.Number(2)))
-
-test_list = make_test(
+test_list_empty = make_test("()", t.List())
+test_list_one = make_test("(1)", t.List(t.Number(1)))
+test_list_atom = make_test(
     "(true false 123 nil)",
     t.List(
         t.Boolean(true),

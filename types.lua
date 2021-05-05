@@ -1,11 +1,13 @@
 function make_type(kind)
     return function(obj)
-        return setmetatable(obj, kind)
+        obj.kind = kind
+        return obj
     end
 end
 
 local kinds = {
     Nil = {kind = 'nil'},
+    Symbol = {kind = 'symbol'},
     Number = {kind = 'number'},
     Boolean = {kind = 'boolean'},
     List = {kind = 'list'},
@@ -13,7 +15,7 @@ local kinds = {
 
 local types = {}
 for k, v in pairs(kinds) do
-    types[k] = make_type(v)
+    types[k] = make_type(v.kind)
 end
 
 function const(t, x)
@@ -41,6 +43,7 @@ end
 
 return {
     Nil = const(types.Nil, {}),
+    Symbol = arg1(types.Symbol),
     Number = arg1(types.Number),
     Boolean = arg1(types.Boolean),
     List = argn(types.List),

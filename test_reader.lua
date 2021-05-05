@@ -15,15 +15,24 @@ test_number_2 = make_test("123", t.Number(123))
 test_nil = make_test("nil", t.Nil())
 test_false = make_test("false", t.Boolean(false))
 test_true = make_test("true", t.Boolean(true))
+test_symbol = make_test("abc", t.Symbol("abc"))
 
 test_list_empty = make_test("()", t.List())
 test_list_one = make_test("(1)", t.List(t.Number(1)))
 test_list_atom = make_test(
-    "(true false 123 nil)",
+    "(true false 123 nil abc)",
     t.List(
         t.Boolean(true),
         t.Boolean(false),
         t.Number(123),
-        t.Nil()))
+        t.Nil(),
+        t.Symbol("abc")))
+test_nested_list = make_test(
+    "(1 (2 (3)))",
+    t.List(
+        t.Number(1),
+        t.List(
+            t.Number(2),
+            t.List(t.Number(3)))))
 
 os.exit(lu.LuaUnit.run())

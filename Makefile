@@ -28,5 +28,6 @@ clean:
 	-rm -r share lib lua_modules
 
 test: $(TESTS)
-	lua $<
-
+	for test_file in $(TESTS); do \
+		lua $$test_file ; \
+	done

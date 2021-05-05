@@ -6,8 +6,10 @@ LDLIBS=-llua -lreadline
 
 STEPS=$(wildcard step*.lua)
 TESTS=$(wildcard test_*.lua)
+DEPS=lpeg.so readline.so
 
-$(STEPS): readline.so lpeg.so luaunit.lua
+$(STEPS): $(DEPS)
+$(TESTS): luaunit.lua $(DEPS)
 
 readline.so: lua_readline.c
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) $< -o $@
@@ -27,3 +29,4 @@ clean:
 
 test: $(TESTS)
 	lua $<
+

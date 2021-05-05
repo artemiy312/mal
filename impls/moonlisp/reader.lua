@@ -21,14 +21,23 @@ end
 local grammar = {
     [1] = V('forms')^1,
 
+    forms =
+        V('spaces')
+        + V('nil')
+        + V('number')
+        + V('boolean')
+        + V('symbol')
+        + V('string')
+        + V('list')
+        + V('comment')
+        + V('splice-unquote')
+        + V('sink'),
+
     spaces = Cmt(
         S('\f\n\r\t\v, '),
-        function() return true, nil end),
-
-    forms =
-        V('list')
-        + V('spaces')
-        + V('atom'),
+        function()
+            return true, nil
+        end),
 
     list =
         P('(')
@@ -48,10 +57,13 @@ local grammar = {
                     "There are missed RPAREN: %s",
                     match))
             end),
-    atom =
-        V('nil')
-        + V('number')
-        + V('boolean'),
+
+    symbol =
+        Cmt(
+            (P(1) - S(' \f\n\r\t\v[]{}()\'"`,;'))^1,
+            function(subj, pos, capture)
+                return true, t.Symbol(capture)
+            end),
 
    ["nil"] = Cmt(
         P('nil'),
@@ -78,6 +90,42 @@ local grammar = {
             end
             return true, t.Boolean(bool)
         end),
+
+    string =
+        P('"')
+        * Cmt(
+            (P(1) - P('"')) + P('\"'),
+            function(subj, pos, capture)
+                -- TODO
+                return true, nil
+            end
+        )^0
+        * P('"'),
+
+    comment =
+        P(';')
+        * Cmt(
+            P(1)^0 - P('\n'),
+            function(subj, pos, capture)
+                -- TODO
+                return true, nil
+            end),
+
+    ['splice-unquote'] = Cmt(
+        P('~@'),
+        function()
+            -- TODO
+            return true, nil
+        end),
+
+    sink =
+        Cmt(
+            -- TODO
+            S('\'`~^@'),
+            function(subj, pos, capture)
+                return true, nil
+            end),
+
 }
 
 function read_str(line)

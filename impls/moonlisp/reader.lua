@@ -33,24 +33,16 @@ local grammar = {
         + V('splice-unquote')
         + V('sink'),
 
-    spaces = Cmt(
-        S('\f\n\r\t\v, '),
-        function()
-            return true, nil
-        end),
+    escape = S(" \f\n\r\t\v[]{}()'\"`,;"),
+    spaces = S('\f\n\r\t\v, '),
 
     list =
         P('(')
-        * Cmt(
-            V('forms')^0,
-            function(subj, pos, ...)
-                local n = select('#', ...)
-                if n == 1 and select('1', ...) == "" then
-                   return true, t.List()
-                end
-                return true, t.List(...)
-             end)
-        * (
+        * lpeg.Ct(V("forms")^0)
+        / function(xs)
+            return t.List(xs)
+        end
+       * (
             P(')')
             + function(match)
                 error(string.format(
@@ -60,7 +52,7 @@ local grammar = {
 
     symbol =
         Cmt(
-            (P(1) - S(' \f\n\r\t\v[]{}()\'"`,;'))^1,
+            (P(1) - V('escape'))^1,
             function(subj, pos, capture)
                 return true, t.Symbol(capture)
             end),
@@ -105,7 +97,7 @@ local grammar = {
     comment =
         P(';')
         * Cmt(
-            P(1)^0 - P('\n'),
+            P(1)^0 - P('\n')^-1,
             function(subj, pos, capture)
                 -- TODO
                 return true, nil
@@ -129,7 +121,11 @@ local grammar = {
 }
 
 function read_str(line)
-    return lpeg.match(grammar, line)
+    local matched = lpeg.match(grammar, line)
+    if type(matched) == "number" then
+        return nil
+    end
+    return matched
 end
 
 return {

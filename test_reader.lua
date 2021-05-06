@@ -17,22 +17,25 @@ test_false = make_test("false", t.Boolean(false))
 test_true = make_test("true", t.Boolean(true))
 test_symbol = make_test("abc", t.Symbol("abc"))
 
-test_list_empty = make_test("()", t.List())
-test_list_one = make_test("(1)", t.List(t.Number(1)))
+test_number_spaces = make_test("    1    ", t.Number(1))
+test_list_empty_space = make_test("( )", t.List({}))
+
+test_list_empty = make_test("()", t.List({}))
+test_list_one = make_test("(1)", t.List({t.Number(1)}))
 test_list_atom = make_test(
     "(true false 123 nil abc)",
-    t.List(
+    t.List({
         t.Boolean(true),
         t.Boolean(false),
         t.Number(123),
         t.Nil(),
-        t.Symbol("abc")))
+        t.Symbol("abc")}))
 test_nested_list = make_test(
     "(1 (2 (3)))",
-    t.List(
+    t.List({
         t.Number(1),
-        t.List(
+        t.List({
             t.Number(2),
-            t.List(t.Number(3)))))
+            t.List({t.Number(3)})})}))
 
 os.exit(lu.LuaUnit.run())

@@ -30,22 +30,11 @@ function arg1(t)
     end 
 end
 
-function argn(t)
-    return function(...)
-        local value = {}
-        local n = select('#', ...)
-        for i = 1, n do
-            value[#value + 1] = select(i, ...)
-        end
-        return t({value = value })
-    end
-end
-
 return {
     Nil = const(types.Nil, {}),
     Symbol = arg1(types.Symbol),
     Number = arg1(types.Number),
     Boolean = arg1(types.Boolean),
-    List = argn(types.List),
+    List = arg1(types.List),
 }
 

@@ -6,7 +6,7 @@ local V = lpeg.V
 local C = lpeg.C
 local P = lpeg.P
 local R = lpeg.R
-local Cmt = lpeg.Cmt
+local Ct = lpeg.Ct
 
 function cmt_error(subj, pos, capture, msg)
     local msg = string.format(
@@ -38,10 +38,8 @@ local grammar = {
 
     list =
         P('(')
-        * lpeg.Ct(V("forms")^0)
-        / function(xs)
-            return t.List(xs)
-        end
+        * Ct(V("forms")^0)
+        / t.List
        * (
             P(')')
             + function(match)
@@ -51,72 +49,62 @@ local grammar = {
             end),
 
     symbol =
-        Cmt(
-            (P(1) - V('escape'))^1,
-            function(subj, pos, capture)
-                return true, t.Symbol(capture)
-            end),
+        C((P(1) - V('escape'))^1)
+        / t.Symbol,
 
-   ["nil"] = Cmt(
-        P('nil'),
-        function()
-            return true, t.Nil()
-        end),
+   ["nil"] =
+        C('nil')
+        / t.Nil,
+--        / function()
+--            return t.Nil()
+--        end,
 
-    number = Cmt(
-        R('09')^1,
-        function(subj, pos, capture)
-            local number = tonumber(capture)
-            if number == nil then
-                cmt_error(subj, pos, cature)
-            end
-            return true, t.Number(number)
-        end),
+    number =
+        C(R('09')^1)
+        / function(token)
+            local number = tonumber(token)
+            return t.Number(number)
+        end,
 
-    boolean = Cmt(
-        P('false') + P('true'),
-        function(subj, pos, capture)
+    boolean =
+        (C('false') + C('true'))
+        / function(token)
             bool = false
-            if capture == 'true' then
+            if token == 'true' then
                 bool = true
             end
-            return true, t.Boolean(bool)
-        end),
+            return t.Boolean(bool)
+        end,
 
     string =
+        -- TODO
         P('"')
-        * Cmt(
-            (P(1) - P('"')) + P('\"'),
-            function(subj, pos, capture)
-                -- TODO
-                return true, nil
-            end
-        )^0
+        * C(1)^0
+        / function(token)
+            return nil
+        end
         * P('"'),
 
     comment =
         P(';')
-        * Cmt(
-            P(1)^0 - P('\n')^-1,
-            function(subj, pos, capture)
-                -- TODO
-                return true, nil
-            end),
+        * C(P(1)^0 - P('\n')^-1)
+        / function(token)
+            return nil
+        end,
 
-    ['splice-unquote'] = Cmt(
-        P('~@'),
-        function()
+    ['splice-unquote'] =
+        C('~@')
+        / function()
             -- TODO
-            return true, nil
-        end),
+            return nil
+        end,
 
     sink =
-        Cmt(
-            -- TODO
-            S('\'`~^@'),
-            function(subj, pos, capture)
-                return true, nil
-            end),
+        -- TODO
+        C(S('\'`~^@'))
+        / function(token)
+            return nil
+        end,
 
 }
 

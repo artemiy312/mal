@@ -12,6 +12,7 @@ end
 test_spaces = make_test(" ,\f\n\r\t\v", nil)
 test_number_1 = make_test("1", t.Number(1))
 test_number_2 = make_test("123", t.Number(123))
+test_number_3 = make_test("-1", t.Number(-1))
 test_nil = make_test("nil", t.Nil())
 test_false = make_test("false", t.Boolean(false))
 test_true = make_test("true", t.Boolean(true))

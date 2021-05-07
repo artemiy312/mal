@@ -48,7 +48,7 @@ local grammar = {
         / t.Nil,
 
     number =
-        C(R('09')^1)
+        C(P('-')^-1 * R('09')^1)
         / function(token)
             local number = tonumber(token)
             return t.Number(number)

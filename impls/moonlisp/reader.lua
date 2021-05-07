@@ -35,9 +35,9 @@ local grammar = {
        * (
             P(')')
             + function(match)
-                error(string.format(
-                    "Unbalanced RPAREN: %s",
-                    match))
+                error(t.Error(string.format(
+                    "Missed RPAREN: %s. EOF",
+                    match)))
             end),
 
     symbol =
@@ -82,9 +82,9 @@ local grammar = {
         * (
             P('"')
             + function(match)
-                error(string.format(
-                    "Unbalanced doublequote: `%s`",
-                    match))
+                error(t.Error(string.format(
+                    "Missed doublequote: %s. EOF",
+                    match)))
             end),
 
     comment =
@@ -111,8 +111,8 @@ local grammar = {
 }
 
 function read_str(line)
-    local matched = lpeg.match(grammar, line)
-    if type(matched) == "number" then
+    local _, matched = pcall(lpeg.match, grammar, line)
+    if type(matched) ~= 'table' then
         return nil
     end
     return matched

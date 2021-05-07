@@ -12,6 +12,7 @@ local kinds = {
     Boolean = {kind = 'boolean'},
     List = {kind = 'list'},
     String = {kind = 'string'},
+    Error = {kind = 'error'},
 }
 
 local types = {}
@@ -38,5 +39,6 @@ return {
     Boolean = arg1(types.Boolean),
     List = arg1(types.List),
     String = arg1(types.String),
+    Error = arg1(types.Error),
 }
 

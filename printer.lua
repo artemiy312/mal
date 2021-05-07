@@ -4,15 +4,19 @@ function pr_str(ast)
     return ""
   end
 
-  if ast.kind ~= "list" then
-    return tostring(ast.value)
+  if ast.kind == "list" then
+    local xs = {}
+    for i, node in pairs(ast.value) do
+        xs[#xs + 1] = pr_str(node)
+    end
+    return string.format('(%s)', table.concat(xs, ' '))
   end
 
-  local xs = {}
-  for i, node in pairs(ast.value) do
-    xs[#xs + 1] = pr_str(node)
+  if ast.kind == "string" then
+    return string.format('"%s"', ast.value)
   end
-  return string.format('(%s)', table.concat(xs, ' '))
+
+  return tostring(ast.value)
 end
 
 return {

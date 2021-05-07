@@ -6,17 +6,9 @@ local V = lpeg.V
 local C = lpeg.C
 local P = lpeg.P
 local R = lpeg.R
+local B = lpeg.B
 local Ct = lpeg.Ct
-
-function cmt_error(subj, pos, capture, msg)
-    local msg = string.format(
-        ((msg or '')
-        .. '\nParse error.'
-        .. '\nCan\'t parse: \'%s\' from \'%s\''
-        .. 'at position: %s'),
-        capture, subj, pos)
-    error(msg)
-end
+local Cmt = lpeg.Cmt
 
 local grammar = {
     [1] = V('forms')^1,
@@ -26,11 +18,11 @@ local grammar = {
         + V('nil')
         + V('number')
         + V('boolean')
-        + V('symbol')
         + V('string')
-        + V('list')
         + V('comment')
         + V('splice-unquote')
+        + V('symbol')
+        + V('list')
         + V('sink'),
 
     escape = S(" \f\n\r\t\v[]{}()'\"`,;"),
@@ -44,7 +36,7 @@ local grammar = {
             P(')')
             + function(match)
                 error(string.format(
-                    "There are missed RPAREN: %s",
+                    "Unbalanced RPAREN: %s",
                     match))
             end),
 
@@ -55,9 +47,6 @@ local grammar = {
    ["nil"] =
         C('nil')
         / t.Nil,
---        / function()
---            return t.Nil()
---        end,
 
     number =
         C(R('09')^1)
@@ -77,13 +66,26 @@ local grammar = {
         end,
 
     string =
-        -- TODO
         P('"')
-        * C(1)^0
-        / function(token)
-            return nil
+        * Ct((
+            Cmt('\\"', function()
+                return true, '\\"'
+            end)
+            + Cmt('\\\\', function(s, p)
+                return true, '\\\\'
+            end)
+            + C(1 - P('"'))
+        )^0)
+        / function(tokens)
+            return t.String(table.concat(tokens, ''))
         end
-        * P('"'),
+        * (
+            P('"')
+            + function(match)
+                error(string.format(
+                    "Unbalanced doublequote: `%s`",
+                    match))
+            end),
 
     comment =
         P(';')

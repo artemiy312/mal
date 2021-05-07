@@ -8,7 +8,6 @@ local P = lpeg.P
 local R = lpeg.R
 local B = lpeg.B
 local Ct = lpeg.Ct
-local Cmt = lpeg.Cmt
 
 local grammar = {
     [1] = V('forms')^1,
@@ -67,18 +66,11 @@ local grammar = {
 
     string =
         P('"')
-        * Ct((
-            Cmt('\\"', function()
-                return true, '\\"'
-            end)
-            + Cmt('\\\\', function(s, p)
-                return true, '\\\\'
-            end)
-            + C(1 - P('"'))
-        )^0)
-        / function(tokens)
-            return t.String(table.concat(tokens, ''))
-        end
+        * C(
+            (P('\\"')
+            + P('\\\\')
+            + (1 - P('"')))^0)
+        / t.String
         * (
             P('"')
             + function(match)
